@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using SignalR2.WordManager;
 
 namespace SignalR2.Hubs
 {
     [HubName("puns")]
     public class PunsHub : Hub<IPunsClientHandler>
     {
-        static List<string> Image =new List<string>();
+        static List<string> Image = new List<string>();
 
+        private readonly IWordsManager m_word_manager;
+        public PunsHub(IWordsManager manager)
+        {
+            m_word_manager = manager;
+        }
         public override Task OnConnected()
         {
             Clients.Caller.LoadImage(Image);
