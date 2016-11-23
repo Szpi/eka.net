@@ -1,13 +1,23 @@
-﻿@{
-    ViewBag.Title = "Contact";
-}
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
+﻿
+<h2><label id="word"></label></h2>
 
-<canvas id="canvas" width="500" height="300"
-        style="border: 1px gainsboro dashed"></canvas>
-<input type="button" class="btn btn-danger "
-       id="clear-btn" value="Clear" />
+<div>
+    <canvas id="canvas" width="500" height="300"
+            style="border: 1px gainsboro dashed"></canvas>
+    <input type="button" class="btn btn-danger "
+           id="clear-btn" value="Clear" />
+</div>
+
+
+    <form>
+        <textarea id="chat" class="form-control" style="height:200px"></textarea>
+        <input type="text" id="msg-input" placeholder="Type text" />
+        <input type="button" class="btn btn-danger " id="send-btn" value="Send" />
+    </form>
+<div>
+    <label>Type !word to guess naswer (e.g. !house)</label>
+</div>
+
 @section scripts
 {
 
@@ -35,8 +45,6 @@
             $("#clear-btn").click(function () {
                 $.connection.puns.server.clear();
             });
-
-
         }
 
         drawPath = function (pathString) {
@@ -60,8 +68,26 @@
         }
 
         $.connection.puns.client.drawPath = drawPath;
+        $.connection.chat.client.setLabelText = function (msg) {
+            document.getElementById('word').innerText = msg;
+        };
         $.connection.hub.start();
 
+        
+        $.connection.hub.start().then(function () {
+            console.log("Connected!:)");
+        });
 
+        $("#send-btn")
+            .click(function () {
+                var message = $("#msg-input").val();
+                $.connection.chat.server.sendToAll(message);
+                $("#chat").append(message + "\n");
+                $("#msg-input").val("");
+            });
+        $.connection.chat.client.sendMessageToAll = function (message) {
+            console.log(message);
+            $("#chat").append(message + "\n");
+        };
     </script>
 }

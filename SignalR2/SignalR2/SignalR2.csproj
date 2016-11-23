@@ -57,7 +57,9 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.2\System.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.DynamicData" />
@@ -192,14 +194,21 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\ChatHub.cs" />
+    <Compile Include="Hubs\IClientHandler.cs" />
+    <Compile Include="Hubs\IPunsClientHandler.cs" />
+    <Compile Include="Hubs\IPunsHub.cs" />
     <Compile Include="Hubs\PunsHub.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PunsManagers\ClientsManager.cs" />
+    <Compile Include="PunsManagers\IClientsManager.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="WordsManager\IWordsManager.cs" />
-    <Compile Include="WordsManager\WordsManager.cs" />
+    <Compile Include="PunsManagers\AnswerValidator.cs" />
+    <Compile Include="PunsManagers\IAnswerValidator.cs" />
+    <Compile Include="PunsManagers\IWordsManager.cs" />
+    <Compile Include="PunsManagers\WordsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />

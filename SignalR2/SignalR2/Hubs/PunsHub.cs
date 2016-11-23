@@ -9,7 +9,7 @@ namespace SignalR2.Hubs
     [HubName("puns")]
     public class PunsHub : Hub<IPunsClientHandler>
     {
-        static List<string> Image = new List<string>();
+        static readonly List<string> Image = new List<string>();
 
         private readonly IWordsManager m_word_manager;
         public PunsHub(IWordsManager manager)
@@ -33,12 +33,5 @@ namespace SignalR2.Hubs
             Image.Clear();
             Clients.All.Clear();
         }
-    }
-
-    public interface IPunsClientHandler
-    {
-        void DrawPath(string path);
-        void Clear();
-        void LoadImage(List<string> image);
     }
 }

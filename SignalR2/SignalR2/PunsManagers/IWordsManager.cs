@@ -2,6 +2,7 @@
 {
     public interface IWordsManager
     {
-        string GetRandomWord();
+        string CurrentWord { get; }
+        string NextWord { get; }
     }
 }
