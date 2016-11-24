@@ -72,7 +72,9 @@
             document.getElementById('word').innerText = msg;
         };
         $.connection.hub.start();
-
+        $.connection.chat.client.informCorrectAnswer = function(){
+            document.puneCanvas.clear();
+        };
         
         $.connection.hub.start().then(function () {
             console.log("Connected!:)");

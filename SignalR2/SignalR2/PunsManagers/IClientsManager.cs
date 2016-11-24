@@ -3,7 +3,7 @@
     public interface IClientsManager
     {
         void AddUser(string id);
-        string GetNextClientToDraw();
+        ClientsState GetNextClientToDraw(out string next_drawer);
         bool IsCurrentlyDrawing(string id);
         bool IsSomeoneDrawing();
         bool RemoveUser(string id);

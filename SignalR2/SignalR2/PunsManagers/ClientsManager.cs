@@ -4,6 +4,11 @@ using System.Linq;
 
 namespace SignalR2.WordManager
 {
+    public enum ClientsState
+    {
+        not_enough,
+        ok,
+    }
     public sealed class ClientsManager : IClientsManager
     {
         private string m_current_drawing_client;
@@ -11,7 +16,7 @@ namespace SignalR2.WordManager
         private readonly object _mutex = new object();
         public void AddUser(string id)
         {
-            lock(_mutex)
+            lock (_mutex)
             {
                 m_connected_users.Add(id);
             }
@@ -19,22 +24,22 @@ namespace SignalR2.WordManager
 
         public bool RemoveUser(string id)
         {
-            lock(_mutex)
+            lock (_mutex)
             {
                 m_connected_users.Remove(id);
                 return m_current_drawing_client == id;
             }
         }
-        public string GetNextClientToDraw()
+        public ClientsState GetNextClientToDraw(out string next_drawer)
         {
-            lock(_mutex)
+            lock (_mutex)
             {
-                if(m_connected_users.Count <= 1)
+                if (m_connected_users.Count <= 1)
                 {
-                    m_current_drawing_client = null;
-                    return "";
+                    next_drawer = m_current_drawing_client = null;
+                    return ClientsState.not_enough;
                 }
-                if(FirstRound())
+                if (FirstRound())
                 {
                     var random_index = new Random().Next(0, m_connected_users.Count);
                     m_current_drawing_client = m_connected_users[random_index];
@@ -44,7 +49,8 @@ namespace SignalR2.WordManager
                     var index = m_connected_users.IndexOf(m_current_drawing_client);
                     m_current_drawing_client = IsLastIndex(index) ? m_connected_users.FirstOrDefault() : m_connected_users[++index];
                 }
-                return m_current_drawing_client;
+                next_drawer =  m_current_drawing_client;
+                return ClientsState.ok;
             }
         }
 

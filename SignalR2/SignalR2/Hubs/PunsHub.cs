@@ -10,12 +10,7 @@ namespace SignalR2.Hubs
     public class PunsHub : Hub<IPunsClientHandler>
     {
         static readonly List<string> Image = new List<string>();
-
-        private readonly IWordsManager m_word_manager;
-        public PunsHub(IWordsManager manager)
-        {
-            m_word_manager = manager;
-        }
+       
         public override Task OnConnected()
         {
             Clients.Caller.LoadImage(Image);

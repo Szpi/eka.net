@@ -10,7 +10,7 @@ using SignalR2.WordManager;
 namespace SignalR2.Hubs
 {
     [HubName("chat")]
-    public class ChatHub : Hub<IClientHandler>
+    public class ChatHub : Hub<IChatClientHandler>
     {
         private const string ANSWER_GUESSES_INFORMATION = "Correct answer! Next round";
         private const string WRONG_ANSWER = "Wrong answer. Try again!";
@@ -29,16 +29,14 @@ namespace SignalR2.Hubs
 
         public void SendToAll(string msg)
         {
-            if(m_clients_manager.IsCurrentlyDrawing(Context.ConnectionId))
+            if (m_clients_manager.IsCurrentlyDrawing(Context.ConnectionId))
             {
                 Clients.Caller.SendMessageToAll(YOU_ARE_CURRENTLY_DRAWING);
                 return;
             }
-            if(m_answer_validator.ValidateWord(msg))
+            if (m_answer_validator.ValidateWord(msg))
             {
-                Clients.All.SendMessageToAll(ANSWER_GUESSES_INFORMATION);
-                Clients.Others.SendMessageToAll(msg);
-                SendNextWordToDraw();
+                OnCorrectAnswer(msg);
                 return;
             }
 
@@ -46,10 +44,18 @@ namespace SignalR2.Hubs
             Clients.Others.SendMessageToAll(msg);
         }
 
+        private void OnCorrectAnswer(string msg)
+        {
+            Clients.All.SendMessageToAll(ANSWER_GUESSES_INFORMATION);
+            Clients.Others.SendMessageToAll(msg);
+            Clients.All.InformCorrectAnswer();
+            SendNextWordToDraw();            
+        }
+
         public override Task OnConnected()
         {
             m_clients_manager.AddUser(Context.ConnectionId);
-            if(m_clients_manager.IsSomeoneDrawing())
+            if (m_clients_manager.IsSomeoneDrawing())
             {
                 Clients.Caller.SetLabelText("Guess pun!");
             }
@@ -63,14 +69,15 @@ namespace SignalR2.Hubs
 
         private void SendNextWordToDraw()
         {
-            var id = m_clients_manager.GetNextClientToDraw();
-            if(!string.IsNullOrEmpty(id))
+            string id;
+            var client_state = m_clients_manager.GetNextClientToDraw(out id);
+            if (client_state == ClientsState.not_enough)
             {
-                Clients.Client(id).SetLabelText($"Word to draw: {m_word_manager.NextWord}");
-                Clients.AllExcept(id).SetLabelText("Guess pun!");
+                Clients.All.SetLabelText("Waiting for at least 2 people");
                 return;
             }
-            Clients.All.SetLabelText("Waiting for at least 2 people");
+            Clients.Client(id).SetLabelText($"Word to draw: {m_word_manager.NextWord}");
+            Clients.AllExcept(id).SetLabelText("Guess pun!");            
         }
 
         public override Task OnReconnected()
@@ -81,7 +88,7 @@ namespace SignalR2.Hubs
         public override Task OnDisconnected(bool stopCalled)
         {
             m_clients_manager.RemoveUser(Context.ConnectionId);
-            if(m_clients_manager.IsCurrentlyDrawing(Context.ConnectionId))
+            if (m_clients_manager.IsCurrentlyDrawing(Context.ConnectionId))
             {
                 Clients.All.SendMessageToAll(DRAWER_DISCONNECTED_NEXT_ROUND);
                 SendNextWordToDraw();
